@@ -88,6 +88,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     Color? backgroundColor,
     TextStyle? searchTextStyle,
     BoxBorder? searchBoxBorder,
+    bool? isSearchEnabled,
   }) : this._(
           key: key,
           controller: controller,
