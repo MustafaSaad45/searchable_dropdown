@@ -116,6 +116,7 @@ class SearchableDropdown<T> extends StatefulWidget {
           backgroundColor: backgroundColor,
           searchTextStyle: searchTextStyle,
           searchBoxBorder: searchBoxBorder,
+          isSearchEnabled: isSearchEnabled,
         );
 
   const SearchableDropdown.future({
@@ -200,6 +201,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     this.searchTextStyle,
     this.searchBoxBorder,
     this.searchLeadingIcon,
+    this.isSearchEnabled,
   });
 
   //Is dropdown enabled
@@ -292,6 +294,7 @@ class SearchableDropdown<T> extends StatefulWidget {
   // Leading icon of search bar.
   final Widget? searchLeadingIcon;
 
+  final bool? isSearchEnabled;
   @override
   State<SearchableDropdown<T>> createState() => _SearchableDropdownState<T>();
 }
@@ -356,6 +359,7 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
       backgroundColor: widget.backgroundColor,
       searchTextStyle: widget.searchTextStyle,
       searchBoxBorder: widget.searchBoxBorder,
+      isSearchEnabled: widget.isSearchEnabled,
     );
 
     return SizedBox(
@@ -392,6 +396,7 @@ class _DropDown<T> extends StatelessWidget {
     this.searchTextStyle,
     this.searchBoxBorder,
     this.searchLeadingIcon,
+    this.isSearchEnabled,
   });
 
   final bool isEnabled;
@@ -421,7 +426,7 @@ class _DropDown<T> extends StatelessWidget {
   final BoxBorder? searchBoxBorder;
   final TextStyle? searchTextStyle;
   final Widget? searchLeadingIcon;
-
+  final bool? isSearchEnabled;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -436,6 +441,7 @@ class _DropDown<T> extends StatelessWidget {
             searchTextStyle: searchTextStyle,
             searchBoxBorder: searchBoxBorder,
             searchLeadingIcon: searchLeadingIcon,
+            isSearchEnabled: isSearchEnabled,
           );
         } else {
           disabledOnTap?.call();
@@ -501,6 +507,7 @@ class _DropDown<T> extends StatelessWidget {
     TextStyle? searchTextStyle,
     BoxBorder? searchBoxBorder,
     Widget? searchLeadingIcon,
+    bool? isSearchEnabled,
   }) {
     var isReversed = false;
     final deviceHeight = context.deviceHeight;
@@ -566,6 +573,7 @@ class _DropDown<T> extends StatelessWidget {
                   searchTextStyle: searchTextStyle,
                   searchBoxBorder: searchBoxBorder,
                   searchLeadingIcon: searchLeadingIcon,
+                  isSearchEnabled: isSearchEnabled,
                 ),
               ),
             ],
@@ -617,6 +625,7 @@ class _DropDownCard<T> extends StatelessWidget {
     this.searchTextStyle,
     this.searchBoxBorder,
     this.searchLeadingIcon,
+    this.isSearchEnabled,
   });
 
   final bool isReversed;
@@ -633,7 +642,7 @@ class _DropDownCard<T> extends StatelessWidget {
   final TextStyle? searchTextStyle;
   final BoxBorder? searchBoxBorder;
   final Widget? searchLeadingIcon;
-
+  final bool? isSearchEnabled;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -652,14 +661,15 @@ class _DropDownCard<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 verticalDirection: isReversed ? VerticalDirection.up : VerticalDirection.down,
                 children: [
-                  _DropDownSearchBar(
-                    controller: controller,
-                    searchHintText: searchHintText,
-                    changeCompletionDelay: changeCompletionDelay,
-                    textStyle: searchTextStyle,
-                    searchBoxBorder: searchBoxBorder,
-                    searchLeadingIcon: searchLeadingIcon,
-                  ),
+                  if (isSearchEnabled)
+                    _DropDownSearchBar(
+                      controller: controller,
+                      searchHintText: searchHintText,
+                      changeCompletionDelay: changeCompletionDelay,
+                      textStyle: searchTextStyle,
+                      searchBoxBorder: searchBoxBorder,
+                      searchLeadingIcon: searchLeadingIcon,
+                    ),
                   Flexible(
                     child: _DropDownListView(
                       dropdownController: controller,
@@ -694,6 +704,7 @@ class _DropDownSearchBar<T> extends StatelessWidget {
   final TextStyle? textStyle;
   final BoxBorder? searchBoxBorder;
   final Widget? searchLeadingIcon;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
