@@ -788,10 +788,7 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
           itemList == null
               ? const Center(child: CircularProgressIndicator.adaptive())
               : itemList.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: widget.noRecordText ?? const Text('No record'),
-                    )
+                  ? widget.noRecordText
                   : Scrollbar(
                       thumbVisibility: true,
                       controller: scrollController,
