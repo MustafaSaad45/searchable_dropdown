@@ -777,62 +777,70 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: widget.paginatedRequest != null
-          ? widget.dropdownController.paginatedItemList
-          : widget.dropdownController.searchedItems,
-      builder: (
-        context,
-        List<SearchableDropdownMenuItem<T>>? itemList,
-        child,
-      ) =>
-          itemList == null
+        valueListenable: widget.paginatedRequest != null
+            ? widget.dropdownController.paginatedItemList
+            : widget.dropdownController.searchedItems,
+        builder: (
+          context,
+          List<SearchableDropdownMenuItem<T>>? itemList,
+          child,
+        ) {
+          if (itemList != null && itemList.isEmpty) {
+            // Delay the pop to the next frame to avoid build context issues
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            });
+            // Return an empty container while popping
+            return const SizedBox.shrink();
+          }
+          return itemList == null
               ? const Center(child: CircularProgressIndicator.adaptive())
-              : itemList.isEmpty
-                  ? widget.noRecordText
-                  : Scrollbar(
-                      thumbVisibility: true,
+              : Scrollbar(
+                  thumbVisibility: true,
+                  controller: scrollController,
+                  child: NotificationListener(
+                    child: ListView.builder(
                       controller: scrollController,
-                      child: NotificationListener(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          padding: listViewPadding(isReversed: widget.isReversed),
-                          itemCount: itemList.length + 1,
-                          shrinkWrap: true,
-                          reverse: widget.isReversed,
-                          itemBuilder: (context, index) {
-                            if (index < itemList.length) {
-                              final item = itemList.elementAt(index);
-                              return CustomInkwell(
-                                child: item.child,
-                                onTap: () {
-                                  widget.dropdownController.selectedItem.value = item;
-                                  widget.onChanged?.call(item.value);
-                                  Navigator.pop(context);
-                                  item.onTap?.call();
-                                },
-                              );
-                            } else {
-                              return ValueListenableBuilder(
-                                valueListenable: widget.dropdownController.status,
-                                builder: (
-                                  context,
-                                  SearchableDropdownStatus state,
-                                  child,
-                                ) {
-                                  if (state == SearchableDropdownStatus.busy) {
-                                    return const Center(
-                                      child: CircularProgressIndicator.adaptive(),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                              );
-                            }
-                          },
-                        ),
-                      ),
+                      padding: listViewPadding(isReversed: widget.isReversed),
+                      itemCount: itemList.length + 1,
+                      shrinkWrap: true,
+                      reverse: widget.isReversed,
+                      itemBuilder: (context, index) {
+                        if (index < itemList.length) {
+                          final item = itemList.elementAt(index);
+                          return CustomInkwell(
+                            child: item.child,
+                            onTap: () {
+                              widget.dropdownController.selectedItem.value = item;
+                              widget.onChanged?.call(item.value);
+                              Navigator.pop(context);
+                              item.onTap?.call();
+                            },
+                          );
+                        } else {
+                          return ValueListenableBuilder(
+                            valueListenable: widget.dropdownController.status,
+                            builder: (
+                              context,
+                              SearchableDropdownStatus state,
+                              child,
+                            ) {
+                              if (state == SearchableDropdownStatus.busy) {
+                                return const Center(
+                                  child: CircularProgressIndicator.adaptive(),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          );
+                        }
+                      },
                     ),
-    );
+                  ),
+                );
+        });
   }
 
   EdgeInsets listViewPadding({required bool isReversed}) {
