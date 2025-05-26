@@ -662,7 +662,7 @@ class _DropDownCard<T> extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 verticalDirection: isReversed ? VerticalDirection.up : VerticalDirection.down,
                 children: [
-                  if (isSearchEnabled)
+                  if (isSearchEnabled == true)
                     _DropDownSearchBar(
                       controller: controller,
                       searchHintText: searchHintText,
