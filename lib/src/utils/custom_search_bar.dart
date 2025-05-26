@@ -14,6 +14,7 @@ class CustomSearchBar extends StatelessWidget {
     this.focusNode,
     this.controller,
     this.style,
+    this.searchBorder,
   });
 
   /// Klavyeden değer girme işlemi bittikten kaç milisaniye sonra on change complete fonksiyonunun tetikleneceğini belirler.
@@ -23,6 +24,7 @@ class CustomSearchBar extends StatelessWidget {
   final String? hintText;
   final TextEditingController? controller;
   final TextStyle? style;
+  final BoxBorder? searchBorder;
 
   /// Cancelable operation ile klavyeden değer girme işlemi kontrol edilir.
   /// Verilen delay içerisinde klavyeden yeni bir giriş olmaz ise bu fonksiyon tetiklenir.
@@ -41,9 +43,10 @@ class CustomSearchBar extends StatelessWidget {
           ? DecoratedBox(
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(8)),
-                border: Border.all(
-                  color: (style?.color ?? Colors.black).withOpacity(0.5),
-                ),
+                border: searchBorder ??
+                    Border.all(
+                      color: (style?.color ?? Colors.black).withOpacity(0.5),
+                    ),
               ),
               child: _SearchBarTextField(
                 onChangeComplete: onChangeComplete,
