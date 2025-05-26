@@ -202,7 +202,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     this.searchTextStyle,
     this.searchBoxBorder,
     this.searchLeadingIcon,
-    this.isSearchEnabled,
+    this.isSearchEnabled = true,
   });
 
   //Is dropdown enabled
