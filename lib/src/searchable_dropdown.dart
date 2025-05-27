@@ -777,28 +777,21 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: widget.paginatedRequest != null
-            ? widget.dropdownController.paginatedItemList
-            : widget.dropdownController.searchedItems,
-        builder: (
-          context,
-          List<SearchableDropdownMenuItem<T>>? itemList,
-          child,
-        ) {
-          // if (itemList != null && itemList.isEmpty) {
-          //   // Delay the pop to the next frame to avoid build context issues
-          //   WidgetsBinding.instance.addPostFrameCallback((_) {
-          //     if (Navigator.canPop(context)) {
-          //       Navigator.pop(context);
-          //     }
-          //   });
-          //   // Return an empty container while popping
-          //   return const SizedBox.shrink();
-          // }
-          return itemList == null
+      valueListenable: widget.paginatedRequest != null
+          ? widget.dropdownController.paginatedItemList
+          : widget.dropdownController.searchedItems,
+      builder: (
+        context,
+        List<SearchableDropdownMenuItem<T>>? itemList,
+        child,
+      ) =>
+          itemList == null
               ? const Center(child: CircularProgressIndicator.adaptive())
               : itemList.isEmpty
-                  ? widget.noRecordText
+                  ? Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: widget.noRecordText ?? const Text('No record'),
+                    )
                   : Scrollbar(
                       thumbVisibility: true,
                       controller: scrollController,
@@ -841,8 +834,8 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
                           },
                         ),
                       ),
-                    );
-        });
+                    ),
+    );
   }
 
   EdgeInsets listViewPadding({required bool isReversed}) {
