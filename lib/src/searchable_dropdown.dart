@@ -854,7 +854,7 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
     double sensitivity = 150.0,
     Duration throttleDuration = const Duration(milliseconds: 400),
   }) {
-    if (timer != null && timer?.isActive ?? false) return;
+    if (timer != null && timer?.isActive == true) return;
 
     timer = Timer(throttleDuration, () => timer = null);
 
