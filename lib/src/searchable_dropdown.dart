@@ -910,7 +910,7 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
       debounceTimer?.cancel();
 
       // جدّد المؤقت ليتم التحميل بعد 1 ثانية توقف عن التمرير
-      debounceTimer = Timer(const Duration(seconds: 1), () {
+      debounceTimer = Timer(const Duration(milliseconds: 400), () {
         if (searchText.isNotEmpty) {
           dropdownController.getItemsWithPaginatedRequest(
             page: dropdownController.page,
