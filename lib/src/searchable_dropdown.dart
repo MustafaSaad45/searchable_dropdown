@@ -756,9 +756,131 @@ class _DropDownListView<T> extends StatefulWidget {
   State<_DropDownListView<T>> createState() => _DropDownListViewState<T>();
 }
 
+// class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
+//   ScrollController scrollController = ScrollController();
+//   Timer? timer;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     scrollController.addListener(scrollControllerListener);
+//   }
+
+//   @override
+//   void dispose() {
+//     super.dispose();
+//     scrollController
+//       ..removeListener(scrollControllerListener)
+//       ..dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ValueListenableBuilder(
+//       valueListenable: widget.paginatedRequest != null
+//           ? widget.dropdownController.paginatedItemList
+//           : widget.dropdownController.searchedItems,
+//       builder: (
+//         context,
+//         List<SearchableDropdownMenuItem<T>>? itemList,
+//         child,
+//       ) =>
+//           itemList == null
+//               ? const Center(child: CircularProgressIndicator.adaptive())
+//               : itemList.isEmpty
+//                   ? Padding(
+//                       padding: const EdgeInsets.all(8),
+//                       child: widget.noRecordText ?? const Text('No record'),
+//                     )
+//                   : Scrollbar(
+//                       thumbVisibility: true,
+//                       controller: scrollController,
+//                       child: NotificationListener(
+//                         child: ListView.builder(
+//                           controller: scrollController,
+//                           padding: listViewPadding(isReversed: widget.isReversed),
+//                           itemCount: itemList.length + 1,
+//                           shrinkWrap: true,
+//                           reverse: widget.isReversed,
+//                           itemBuilder: (context, index) {
+//                             if (index < itemList.length) {
+//                               final item = itemList.elementAt(index);
+//                               return CustomInkwell(
+//                                 child: item.child,
+//                                 onTap: () {
+//                                   widget.dropdownController.selectedItem.value = item;
+//                                   widget.onChanged?.call(item.value);
+//                                   Navigator.pop(context);
+//                                   item.onTap?.call();
+//                                 },
+//                               );
+//                             } else {
+//                               return ValueListenableBuilder(
+//                                 valueListenable: widget.dropdownController.status,
+//                                 builder: (
+//                                   context,
+//                                   SearchableDropdownStatus state,
+//                                   child,
+//                                 ) {
+//                                   if (state == SearchableDropdownStatus.busy) {
+//                                     return const Center(
+//                                       child: CircularProgressIndicator.adaptive(),
+//                                     );
+//                                   }
+//                                   return const SizedBox.shrink();
+//                                 },
+//                               );
+//                             }
+//                           },
+//                         ),
+//                       ),
+//                     ),
+//     );
+//   }
+
+//   EdgeInsets listViewPadding({required bool isReversed}) {
+//     final itemHeight = widget.paginatedRequest != null
+//         ? 8.0
+//         : 0.0; // Offset to show progress indicator; Only needed on paginated dropdown
+//     return EdgeInsets.only(
+//       left: 8,
+//       right: 8,
+//       bottom: isReversed ? 0 : itemHeight,
+//       top: isReversed ? itemHeight : 0,
+//     );
+//   }
+
+//   void scrollControllerListener({
+//     double sensitivity = 150.0,
+//     Duration throttleDuration = const Duration(milliseconds: 400),
+//   }) {
+//     if (timer != null && timer?.isActive == true) return;
+
+//     timer = Timer(throttleDuration, () => timer = null);
+
+//     final position = scrollController.position;
+//     final maxScroll = scrollController.position.maxScrollExtent;
+//     final currentScroll = position.pixels;
+//     final dropdownController = widget.dropdownController;
+//     final searchText = dropdownController.searchText;
+//     if (maxScroll - currentScroll <= sensitivity) {
+//       if (searchText.isNotEmpty) {
+//         dropdownController.getItemsWithPaginatedRequest(
+//           page: dropdownController.page,
+//           key: searchText,
+//         );
+//       } else {
+//         dropdownController.getItemsWithPaginatedRequest(
+//           page: dropdownController.page,
+//         );
+//       }
+//     }
+//   }
+// }
+
 class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
-  ScrollController scrollController = ScrollController();
-  Timer? timer;
+  final ScrollController scrollController = ScrollController();
+  Timer? debounceTimer;
 
   @override
   void initState() {
@@ -768,10 +890,49 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
 
   @override
   void dispose() {
-    super.dispose();
+    debounceTimer?.cancel();
     scrollController
       ..removeListener(scrollControllerListener)
       ..dispose();
+    super.dispose();
+  }
+
+  void scrollControllerListener() {
+    const double sensitivity = 150.0;
+    final position = scrollController.position;
+    final maxScroll = position.maxScrollExtent;
+    final currentScroll = position.pixels;
+    final dropdownController = widget.dropdownController;
+    final searchText = dropdownController.searchText;
+
+    if (maxScroll - currentScroll <= sensitivity) {
+      // ألغِ المؤقت السابق لو لسه شغال
+      debounceTimer?.cancel();
+
+      // جدّد المؤقت ليتم التحميل بعد 1 ثانية توقف عن التمرير
+      debounceTimer = Timer(const Duration(seconds: 1), () {
+        if (searchText.isNotEmpty) {
+          dropdownController.getItemsWithPaginatedRequest(
+            page: dropdownController.page,
+            key: searchText,
+          );
+        } else {
+          dropdownController.getItemsWithPaginatedRequest(
+            page: dropdownController.page,
+          );
+        }
+      });
+    }
+  }
+
+  EdgeInsets listViewPadding({required bool isReversed}) {
+    final itemHeight = widget.paginatedRequest != null ? 8.0 : 0.0;
+    return EdgeInsets.only(
+      left: 8,
+      right: 8,
+      bottom: isReversed ? 0 : itemHeight,
+      top: isReversed ? itemHeight : 0,
+    );
   }
 
   @override
@@ -784,96 +945,60 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
         context,
         List<SearchableDropdownMenuItem<T>>? itemList,
         child,
-      ) =>
-          itemList == null
-              ? const Center(child: CircularProgressIndicator.adaptive())
-              : itemList.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: widget.noRecordText ?? const Text('No record'),
-                    )
-                  : Scrollbar(
-                      thumbVisibility: true,
-                      controller: scrollController,
-                      child: NotificationListener(
-                        child: ListView.builder(
-                          controller: scrollController,
-                          padding: listViewPadding(isReversed: widget.isReversed),
-                          itemCount: itemList.length + 1,
-                          shrinkWrap: true,
-                          reverse: widget.isReversed,
-                          itemBuilder: (context, index) {
-                            if (index < itemList.length) {
-                              final item = itemList.elementAt(index);
-                              return CustomInkwell(
-                                child: item.child,
-                                onTap: () {
-                                  widget.dropdownController.selectedItem.value = item;
-                                  widget.onChanged?.call(item.value);
-                                  Navigator.pop(context);
-                                  item.onTap?.call();
-                                },
-                              );
-                            } else {
-                              return ValueListenableBuilder(
-                                valueListenable: widget.dropdownController.status,
-                                builder: (
-                                  context,
-                                  SearchableDropdownStatus state,
-                                  child,
-                                ) {
-                                  if (state == SearchableDropdownStatus.busy) {
-                                    return const Center(
-                                      child: CircularProgressIndicator.adaptive(),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                    ),
-    );
-  }
-
-  EdgeInsets listViewPadding({required bool isReversed}) {
-    final itemHeight = widget.paginatedRequest != null
-        ? 8.0
-        : 0.0; // Offset to show progress indicator; Only needed on paginated dropdown
-    return EdgeInsets.only(
-      left: 8,
-      right: 8,
-      bottom: isReversed ? 0 : itemHeight,
-      top: isReversed ? itemHeight : 0,
-    );
-  }
-
-  void scrollControllerListener({
-    double sensitivity = 150.0,
-    Duration throttleDuration = const Duration(milliseconds: 400),
-  }) {
-    if (timer != null && timer?.isActive == true) return;
-
-    timer = Timer(throttleDuration, () => timer = null);
-
-    final position = scrollController.position;
-    final maxScroll = scrollController.position.maxScrollExtent;
-    final currentScroll = position.pixels;
-    final dropdownController = widget.dropdownController;
-    final searchText = dropdownController.searchText;
-    if (maxScroll - currentScroll <= sensitivity) {
-      if (searchText.isNotEmpty) {
-        dropdownController.getItemsWithPaginatedRequest(
-          page: dropdownController.page,
-          key: searchText,
+      ) {
+        if (itemList == null) {
+          return const Center(child: CircularProgressIndicator.adaptive());
+        }
+        if (itemList.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(8),
+            child: widget.noRecordText ?? const Text('No record'),
+          );
+        }
+        return Scrollbar(
+          thumbVisibility: true,
+          controller: scrollController,
+          child: NotificationListener(
+            child: ListView.builder(
+              controller: scrollController,
+              padding: listViewPadding(isReversed: widget.isReversed),
+              itemCount: itemList.length + 1,
+              shrinkWrap: true,
+              reverse: widget.isReversed,
+              itemBuilder: (context, index) {
+                if (index < itemList.length) {
+                  final item = itemList.elementAt(index);
+                  return CustomInkwell(
+                    child: item.child,
+                    onTap: () {
+                      widget.dropdownController.selectedItem.value = item;
+                      widget.onChanged?.call(item.value);
+                      Navigator.pop(context);
+                      item.onTap?.call();
+                    },
+                  );
+                } else {
+                  return ValueListenableBuilder(
+                    valueListenable: widget.dropdownController.status,
+                    builder: (
+                      context,
+                      SearchableDropdownStatus state,
+                      child,
+                    ) {
+                      if (state == SearchableDropdownStatus.busy) {
+                        return const Center(
+                          child: CircularProgressIndicator.adaptive(),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  );
+                }
+              },
+            ),
+          ),
         );
-      } else {
-        dropdownController.getItemsWithPaginatedRequest(
-          page: dropdownController.page,
-        );
-      }
-    }
+      },
+    );
   }
 }
