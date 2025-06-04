@@ -114,6 +114,7 @@ class _SearchBarTextField extends StatelessWidget {
         controller: controller,
         focusNode: focusNode,
         onChanged: (value) async {
+          if (value.length < 4) return;
           await cancelableOperation?.cancel();
           startCancelableOperation();
           await cancelableOperation?.value.whenComplete(() {
