@@ -89,6 +89,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     TextStyle? searchTextStyle,
     BoxBorder? searchBoxBorder,
     bool? isSearchEnabled,
+    BorderSide? borderSide,
   }) : this._(
           key: key,
           controller: controller,
@@ -118,6 +119,7 @@ class SearchableDropdown<T> extends StatefulWidget {
           searchTextStyle: searchTextStyle,
           searchBoxBorder: searchBoxBorder,
           isSearchEnabled: isSearchEnabled,
+          borderSide: borderSide,
         );
 
   const SearchableDropdown.future({
@@ -203,6 +205,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     this.searchBoxBorder,
     this.searchLeadingIcon,
     this.isSearchEnabled = true,
+    this.borderSide,
   });
 
   //Is dropdown enabled
@@ -296,6 +299,9 @@ class SearchableDropdown<T> extends StatefulWidget {
   final Widget? searchLeadingIcon;
 
   final bool? isSearchEnabled;
+
+  final BorderSide? borderSide;
+
   @override
   State<SearchableDropdown<T>> createState() => _SearchableDropdownState<T>();
 }
@@ -361,6 +367,7 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
       searchTextStyle: widget.searchTextStyle,
       searchBoxBorder: widget.searchBoxBorder,
       isSearchEnabled: widget.isSearchEnabled,
+      borderSide: widget.borderSide,
     );
 
     return SizedBox(
@@ -398,6 +405,7 @@ class _DropDown<T> extends StatelessWidget {
     this.searchBoxBorder,
     this.searchLeadingIcon,
     this.isSearchEnabled,
+    this.borderSide,
   });
 
   final bool isEnabled;
@@ -428,6 +436,7 @@ class _DropDown<T> extends StatelessWidget {
   final TextStyle? searchTextStyle;
   final Widget? searchLeadingIcon;
   final bool? isSearchEnabled;
+  final BorderSide? borderSide;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -443,6 +452,7 @@ class _DropDown<T> extends StatelessWidget {
             searchBoxBorder: searchBoxBorder,
             searchLeadingIcon: searchLeadingIcon,
             isSearchEnabled: isSearchEnabled,
+            borderSide: borderSide,
           );
         } else {
           disabledOnTap?.call();
@@ -509,6 +519,7 @@ class _DropDown<T> extends StatelessWidget {
     BoxBorder? searchBoxBorder,
     Widget? searchLeadingIcon,
     bool? isSearchEnabled,
+    BorderSide? borderSide,
   }) {
     var isReversed = false;
     final deviceHeight = context.deviceHeight;
@@ -575,6 +586,7 @@ class _DropDown<T> extends StatelessWidget {
                   searchBoxBorder: searchBoxBorder,
                   searchLeadingIcon: searchLeadingIcon,
                   isSearchEnabled: isSearchEnabled,
+                  borderSide: borderSide,
                 ),
               ),
             ],
@@ -627,6 +639,7 @@ class _DropDownCard<T> extends StatelessWidget {
     this.searchBoxBorder,
     this.searchLeadingIcon,
     this.isSearchEnabled,
+    this.borderSide,
   });
 
   final bool isReversed;
@@ -644,6 +657,7 @@ class _DropDownCard<T> extends StatelessWidget {
   final BoxBorder? searchBoxBorder;
   final Widget? searchLeadingIcon;
   final bool? isSearchEnabled;
+  final BorderSide? borderSide;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -655,6 +669,7 @@ class _DropDownCard<T> extends StatelessWidget {
             color: backgroundColor,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(8)),
+              side: borderSide,
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
