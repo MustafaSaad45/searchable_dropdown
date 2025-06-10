@@ -89,7 +89,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     TextStyle? searchTextStyle,
     BoxBorder? searchBoxBorder,
     bool? isSearchEnabled,
-    BorderSide? borderSide,
+    Widget? errorText,
   }) : this._(
           key: key,
           controller: controller,
@@ -119,7 +119,7 @@ class SearchableDropdown<T> extends StatefulWidget {
           searchTextStyle: searchTextStyle,
           searchBoxBorder: searchBoxBorder,
           isSearchEnabled: isSearchEnabled,
-          borderSide: borderSide,
+          errorText: errorText,
         );
 
   const SearchableDropdown.future({
@@ -205,7 +205,7 @@ class SearchableDropdown<T> extends StatefulWidget {
     this.searchBoxBorder,
     this.searchLeadingIcon,
     this.isSearchEnabled = true,
-    this.borderSide,
+    this.errorText,
   });
 
   //Is dropdown enabled
@@ -300,7 +300,7 @@ class SearchableDropdown<T> extends StatefulWidget {
 
   final bool? isSearchEnabled;
 
-  final BorderSide? borderSide;
+  final Widget? errorText;
 
   @override
   State<SearchableDropdown<T>> createState() => _SearchableDropdownState<T>();
@@ -367,13 +367,21 @@ class _SearchableDropdownState<T> extends State<SearchableDropdown<T>> {
       searchTextStyle: widget.searchTextStyle,
       searchBoxBorder: widget.searchBoxBorder,
       isSearchEnabled: widget.isSearchEnabled,
-      borderSide: widget.borderSide,
+      errorText: widget.errorText,
     );
 
-    return SizedBox(
-      key: dropdownController.key,
-      width: widget.width ?? MediaQuery.of(context).size.width,
-      child: widget.backgroundDecoration?.call(dropdownWidget) ?? dropdownWidget,
+    return Column(
+      spacing: 8,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          key: dropdownController.key,
+          width: widget.width ?? MediaQuery.of(context).size.width,
+          child: widget.backgroundDecoration?.call(dropdownWidget) ?? dropdownWidget,
+        ),
+        if (widget.errorText != null) widget.errorText!,
+      ],
     );
   }
 }
@@ -405,7 +413,7 @@ class _DropDown<T> extends StatelessWidget {
     this.searchBoxBorder,
     this.searchLeadingIcon,
     this.isSearchEnabled,
-    this.borderSide,
+    this.errorText,
   });
 
   final bool isEnabled;
@@ -436,7 +444,7 @@ class _DropDown<T> extends StatelessWidget {
   final TextStyle? searchTextStyle;
   final Widget? searchLeadingIcon;
   final bool? isSearchEnabled;
-  final BorderSide? borderSide;
+  final Widget? errorText;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -452,7 +460,7 @@ class _DropDown<T> extends StatelessWidget {
             searchBoxBorder: searchBoxBorder,
             searchLeadingIcon: searchLeadingIcon,
             isSearchEnabled: isSearchEnabled,
-            borderSide: borderSide,
+            errorText: errorText,
           );
         } else {
           disabledOnTap?.call();
@@ -519,7 +527,7 @@ class _DropDown<T> extends StatelessWidget {
     BoxBorder? searchBoxBorder,
     Widget? searchLeadingIcon,
     bool? isSearchEnabled,
-    BorderSide? borderSide,
+    Widget? errorText,
   }) {
     var isReversed = false;
     final deviceHeight = context.deviceHeight;
@@ -586,7 +594,6 @@ class _DropDown<T> extends StatelessWidget {
                   searchBoxBorder: searchBoxBorder,
                   searchLeadingIcon: searchLeadingIcon,
                   isSearchEnabled: isSearchEnabled,
-                  borderSide: borderSide,
                 ),
               ),
             ],
@@ -639,7 +646,6 @@ class _DropDownCard<T> extends StatelessWidget {
     this.searchBoxBorder,
     this.searchLeadingIcon,
     this.isSearchEnabled,
-    this.borderSide,
   });
 
   final bool isReversed;
@@ -657,7 +663,6 @@ class _DropDownCard<T> extends StatelessWidget {
   final BoxBorder? searchBoxBorder;
   final Widget? searchLeadingIcon;
   final bool? isSearchEnabled;
-  final BorderSide? borderSide;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -667,10 +672,7 @@ class _DropDownCard<T> extends StatelessWidget {
           child: Card(
             margin: EdgeInsets.zero,
             color: backgroundColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-              side: borderSide ?? BorderSide.none,
-            ),
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Column(
