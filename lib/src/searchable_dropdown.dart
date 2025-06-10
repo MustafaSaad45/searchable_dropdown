@@ -669,7 +669,7 @@ class _DropDownCard<T> extends StatelessWidget {
             color: backgroundColor,
             shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(8)),
-              side: borderSide,
+              side: borderSide ?? = BorderSide.none,
             ),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
